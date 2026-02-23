@@ -86,6 +86,11 @@ class AnalyticsService {
       xlsx_to_dxf_profile_save: 0,
       xlsx_to_kml_save: 0,
       cadsig_open_templates: 0,
+      dxf_tools: 0,
+      distance_tool: 0,
+      xlsx_to_kml: 0,
+      xlsx_to_dxf_profile: 0,
+      kml_to_xlsx: 0,
     };
   }
 

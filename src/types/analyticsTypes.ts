@@ -51,6 +51,16 @@ export interface AnalyticsCounters {
   xlsx_to_kml_view: number; // adicionar
   xlsx_to_kml_save: number; // adicionar
   cadsig_open_templates: number; // adicionar
+
+  dxf_tools: number;
+
+  distance_tool: number;
+
+  xlsx_to_kml: number;
+
+  xlsx_to_dxf_profile: number;
+
+  kml_to_xlsx: number;
 }
 
 export type AnalyticsEvent = keyof AnalyticsCounters;
