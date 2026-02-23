@@ -1,6 +1,6 @@
 {
   "name": "js-open-geo",
-  "homepage": "https://js-geologia-aplicada.github.io/JS-Open-Geo",
+  "homepage": "https://anyasc.github.io/JS-Open-Geo-testes/#",
   "private": true,
   "version": "1.0.0-beta",
   "type": "module",
@@ -34,7 +34,8 @@
     "react-dom": "^19.1.0",
     "react-dropzone": "^14.3.8",
     "react-pdf": "^10.0.1",
-    "react-router-dom": "^7.13.0",
+    "react-router": "^7.13.1",
+    "react-router-dom": "^7.13.1",
     "react-toastify": "^11.0.5",
     "tesseract.js": "^6.0.1",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
@@ -48,7 +49,6 @@
     "@types/react-csv": "^1.1.10",
     "@types/react-dom": "^19.1.6",
     "@vitejs/plugin-react": "^4.5.2",
-    "eslint": "^10.0.1",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",
     "gh-pages": "^6.3.0",

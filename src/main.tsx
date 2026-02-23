@@ -9,14 +9,14 @@ import "./custom.scss";
 import "bootstrap";
 import App from "./App.tsx";
 import { AppProviders } from "./contexts/AppContext.tsx";
-import { BrowserRouter } from "react-router-dom";
+import { HashRouter } from "react-router-dom";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <BrowserRouter>
+    <HashRouter>
       <AppProviders>
         <App />
       </AppProviders>
-    </BrowserRouter>
+    </HashRouter>
   </StrictMode>,
 );
