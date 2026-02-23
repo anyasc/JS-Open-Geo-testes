@@ -8,6 +8,7 @@ import {
 import PageThumbnail from "./PageThumbnail";
 import { Minus, Plus } from "lucide-react";
 import { formatPageRanges, parsePageRanges } from "@/utils/pageExclusionUtils";
+import { analytics } from "@/utils/analyticsUtils";
 
 interface PageExclusionModalProps {
   show: boolean;
@@ -36,6 +37,7 @@ const PageExclusionModal = ({ show, onClose }: PageExclusionModalProps) => {
   useEffect(() => {
     if (show) {
       setOriginalExcludedPages(excludedPages);
+      analytics.track("extraction_exclude_page_open");
     }
   }, [show]);
 

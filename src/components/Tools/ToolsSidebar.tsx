@@ -1,21 +1,16 @@
-import type { ToolsType } from "@/data/tools";
+import { TOOLS } from "@/data/tools";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { Button, Nav } from "react-bootstrap";
+import { Button } from "react-bootstrap";
+import { Link, useParams } from "react-router-dom";
 
 type Props = {
-  tools: ToolsType[];
-  selectedTool: ToolsType;
   collapsed: boolean;
-  onSelectTool: (toolId: ToolsType) => void;
   onToggleCollapse: () => void;
 };
-export const ToolsSidebar = ({
-  tools,
-  selectedTool,
-  collapsed,
-  onSelectTool,
-  onToggleCollapse,
-}: Props) => {
+export const ToolsSidebar = ({ collapsed, onToggleCollapse }: Props) => {
+  const tools = TOOLS;
+  const { toolPath } = useParams<{ toolPath: string }>();
+
   return (
     <div
       style={{
@@ -61,22 +56,22 @@ export const ToolsSidebar = ({
       </div>
 
       {/* Lista de ferramentas */}
-      <Nav className="flex-column">
+      <div className="d-flex flex-column">
         {tools.map((tool) => (
-          <Nav.Link
+          <Link
             key={tool.id}
-            onClick={() => onSelectTool(tool)}
-            active={selectedTool.id === tool.id}
+            to={`/ferramentas/${tool.path}`}
             className={`px-3 py-${collapsed ? "3" : "2"}`}
             style={{
               cursor: "pointer",
               borderLeft:
-                selectedTool.id === tool.id
+                toolPath === tool.path
                   ? "3px solid #0d6efd"
                   : "3px solid transparent",
               whiteSpace: collapsed ? "nowrap" : "normal",
               overflow: "hidden",
               textOverflow: "ellipsis",
+              textDecoration: "none",
             }}
           >
             {collapsed ? (
@@ -136,9 +131,9 @@ export const ToolsSidebar = ({
                 </div>
               </div>
             )}
-          </Nav.Link>
+          </Link>
         ))}
-      </Nav>
+      </div>
     </div>
   );
 };

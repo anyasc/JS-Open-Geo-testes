@@ -2,6 +2,7 @@ import { Download, Play, Save, Trash2, X } from "lucide-react";
 import type { AreaPreset } from "@types";
 import { useEffect, useState } from "react";
 import { useExtractionContext } from "@/contexts/ExtractionContext";
+import { analytics } from "@/utils/analyticsUtils";
 
 interface PresetManagerProps {
   isOpen: boolean;
@@ -19,6 +20,10 @@ const PresetManager: React.FC<PresetManagerProps> = ({ isOpen, onClose }) => {
   useEffect(() => {
     loadPresetsFromStorage();
   }, []);
+
+  useEffect(() => {
+    if (isOpen) analytics.track("extraction_presets_view");
+  }, [isOpen]);
 
   const loadPresetsFromStorage = () => {
     try {
@@ -56,6 +61,7 @@ const PresetManager: React.FC<PresetManagerProps> = ({ isOpen, onClose }) => {
     const updatedPresets = [...savedPresets, newPreset];
     setSavedPresets(updatedPresets);
     savePresetsToStorage(updatedPresets);
+    analytics.track("extraction_presets_save");
     setPresetName("");
   };
 
@@ -63,6 +69,7 @@ const PresetManager: React.FC<PresetManagerProps> = ({ isOpen, onClose }) => {
     if (!confirm("Isso vai substituir todas as áreas atuais. Continuar?"))
       return;
     updateExtractionState({ areas: preset.areas });
+    analytics.track("extraction_presets_load");
     onClose();
   };
 
@@ -83,6 +90,7 @@ const PresetManager: React.FC<PresetManagerProps> = ({ isOpen, onClose }) => {
     link.download = `${preset.name}.json`;
     link.click();
     URL.revokeObjectURL(url);
+    analytics.track("extraction_presets_download");
   };
 
   const handleUploadPreset = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -117,6 +125,7 @@ const PresetManager: React.FC<PresetManagerProps> = ({ isOpen, onClose }) => {
     };
 
     reader.readAsText(file);
+    analytics.track("extraction_presets_import");
   };
 
   return !isOpen ? null : (
@@ -173,8 +182,8 @@ const PresetManager: React.FC<PresetManagerProps> = ({ isOpen, onClose }) => {
             {areas.length === 0
               ? "Nenhuma área para salvar"
               : areas.length === 1
-              ? "1 área será salva"
-              : `${areas.length} áreas serão salvas`}
+                ? "1 área será salva"
+                : `${areas.length} áreas serão salvas`}
           </small>
         </div>
 

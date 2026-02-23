@@ -1,6 +1,12 @@
+import { analytics } from "@/utils/analyticsUtils";
+import { useEffect } from "react";
 import { Alert, Col, Container, Row } from "react-bootstrap";
 
 const AboutPage = () => {
+  useEffect(() => {
+    analytics.track("about_page_view");
+  }, []);
+
   return (
     <Container fluid>
       <Row className="justify-content-center">

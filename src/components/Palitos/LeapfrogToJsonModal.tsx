@@ -12,6 +12,7 @@ import {
 import type { PalitoData } from "@types";
 import { toast } from "react-toastify";
 import { parseNumber } from "@utils/helpers";
+import { analytics } from "@/utils/analyticsUtils";
 
 interface LeapfrogToJsonModalProps {
   onDataProcessed: (data: PalitoData[]) => void;
@@ -129,6 +130,7 @@ const LeapfrogToJsonModal = ({ onDataProcessed }: LeapfrogToJsonModalProps) => {
       setColumnMappings(initialMappings);
 
       setUploadSuccessful(true);
+      analytics.track("leapfrog_to_palito");
     } catch (error) {
       console.error(error);
       toast.error(error as string);
@@ -153,7 +155,7 @@ const LeapfrogToJsonModal = ({ onDataProcessed }: LeapfrogToJsonModalProps) => {
                 value !== null &&
                 value !== undefined &&
                 value !== "" &&
-                String(value).trim() !== ""
+                String(value).trim() !== "",
             );
           });
           resolve(filteredData);
@@ -190,7 +192,7 @@ const LeapfrogToJsonModal = ({ onDataProcessed }: LeapfrogToJsonModalProps) => {
 
       if (data.collar && columnMappings.collar) {
         const collarRow = data.collar.find(
-          (row) => String(row[columnMappings.collar.hole_id]).trim() === holeId
+          (row) => String(row[columnMappings.collar.hole_id]).trim() === holeId,
         );
         if (collarRow && columnMappings.collar.z) {
           palitoEntry.z = parseFloat(collarRow[columnMappings.collar.z]) || 0;
@@ -201,19 +203,19 @@ const LeapfrogToJsonModal = ({ onDataProcessed }: LeapfrogToJsonModalProps) => {
         const geologyRows = data.geology
           .filter(
             (row) =>
-              String(row[columnMappings.geology.hole_id]).trim() === holeId
+              String(row[columnMappings.geology.hole_id]).trim() === holeId,
           )
           .sort(
             (a, b) =>
               parseFloat(a[columnMappings.geology.from]) -
-              parseFloat(b[columnMappings.geology.from])
+              parseFloat(b[columnMappings.geology.from]),
           );
         const depths = [0]; // sempre começar com 0
         const geology: string[] = [];
         geologyRows.forEach((row) => {
           const to = parseNumber(row[columnMappings.geology.to]);
           const description = String(
-            row[columnMappings.geology.geology]
+            row[columnMappings.geology.geology],
           ).trim();
 
           if (!isNaN(to)) depths.push(to);
@@ -226,12 +228,12 @@ const LeapfrogToJsonModal = ({ onDataProcessed }: LeapfrogToJsonModalProps) => {
       if (data.nspt && columnMappings.nspt) {
         const nsptRows = data.nspt
           .filter(
-            (row) => String(row[columnMappings.nspt.hole_id]).trim() === holeId
+            (row) => String(row[columnMappings.nspt.hole_id]).trim() === holeId,
           )
           .sort(
             (a, b) =>
               parseFloat(a[columnMappings.nspt.from]) -
-              parseFloat(b[columnMappings.nspt.from])
+              parseFloat(b[columnMappings.nspt.from]),
           );
         const nsptValues: string[] = [];
         let startDepth = 1;
@@ -252,12 +254,12 @@ const LeapfrogToJsonModal = ({ onDataProcessed }: LeapfrogToJsonModalProps) => {
 
       if (data.na && columnMappings.na) {
         const naRows = data.na.filter(
-          (row) => String(row[columnMappings.na.hole_id]).trim() === holeId
+          (row) => String(row[columnMappings.na.hole_id]).trim() === holeId,
         );
         const waterRow = naRows.find((row) =>
           String(row[columnMappings.na.condition])
             .toUpperCase()
-            .includes("ÁGUA")
+            .includes("ÁGUA"),
         );
         if (waterRow && columnMappings.na.from) {
           const waterLevel = parseFloat(waterRow[columnMappings.na.from]);
@@ -345,7 +347,7 @@ const LeapfrogToJsonModal = ({ onDataProcessed }: LeapfrogToJsonModalProps) => {
 
                 {Object.keys(data).map((fileType) => {
                   const fileTypeConfig = leapfrogTypes.find(
-                    (t) => t.key === fileType
+                    (t) => t.key === fileType,
                   );
                   const availableColumns = Object.keys(data[fileType][0] || {});
 

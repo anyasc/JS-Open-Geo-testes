@@ -8,7 +8,7 @@ import {
   Row,
 } from "react-bootstrap";
 import { generateDxfJs, generateDXFMetro } from "../utils/dxfPalitoGenerator";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { PalitoData } from "../types";
 import { convertToPalitoData } from "../utils/downloadUtils";
 import PalitoPreviewCard from "@/components/Palitos/PalitoPreviewCard";
@@ -37,6 +37,7 @@ const DxfPage = () => {
       } else {
         updateExtractionState({ palitoData: data });
         toast.success("Dados extraídos carregados com sucesso!");
+        analytics.track("extracted_data_to_palito");
       }
     } catch (error) {
       setMessage({ type: "error", text: "Erro ao carregar dados de teste" });
@@ -143,6 +144,10 @@ const DxfPage = () => {
     });
     updateExtractionState({ palitoData: newData });
   };
+
+  useEffect(() => {
+    analytics.track("palitos_page_view");
+  }, []);
 
   return (
     <Container fluid>

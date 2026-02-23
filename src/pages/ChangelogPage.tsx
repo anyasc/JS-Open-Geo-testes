@@ -1,6 +1,8 @@
 import { Col, Container, Row } from "react-bootstrap";
 import changelogData from "@data/changelog.json";
 import type { VersionsData } from "@types";
+import { useEffect } from "react";
+import { analytics } from "@/utils/analyticsUtils";
 
 const ChangelogPage = () => {
   const { versions }: VersionsData = changelogData;
@@ -27,6 +29,10 @@ const ChangelogPage = () => {
     const date = new Date(dateString + "T00:00:00");
     return date.toLocaleDateString("pt-BR");
   };
+
+  useEffect(() => {
+    analytics.track("changelog_page_view");
+  }, []);
 
   return (
     <Container className="mt-4">

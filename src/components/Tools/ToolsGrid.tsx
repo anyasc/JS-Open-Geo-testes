@@ -1,11 +1,15 @@
-import type { ToolsType } from "@/data/tools";
+import { TOOLS } from "@/data/tools";
 import { Card, Col, Row } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
 
-type Props = {
-  tools: ToolsType[];
-  onSelectTool: (toolId: ToolsType) => void;
-};
-export const ToolsGrid = ({ tools, onSelectTool }: Props) => {
+export const ToolsGrid = () => {
+  const navigate = useNavigate();
+  const tools = TOOLS;
+
+  const handleSelectTool = (toolPath: string) => {
+    navigate(`/ferramentas/${toolPath}`);
+  };
+
   return (
     <div
       className="d-flex align-items-center justify-content-center"
@@ -32,7 +36,7 @@ export const ToolsGrid = ({ tools, onSelectTool }: Props) => {
                   e.currentTarget.style.boxShadow =
                     "0 1px 3px rgba(0,0,0,0.12)";
                 }}
-                onClick={() => onSelectTool(tool)}
+                onClick={() => handleSelectTool(tool.path)}
               >
                 <Card.Body>
                   <img

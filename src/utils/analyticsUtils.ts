@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getDatabase, ref, runTransaction } from "firebase/database";
+import { get, getDatabase, ref, runTransaction } from "firebase/database";
 import type {
   AnalyticsCounters,
   AnalyticsEvent,
@@ -43,6 +43,11 @@ class AnalyticsService {
     return {
       pageview: 0,
       unique_daily_view: 0,
+      extraction_page_view: 0,
+      palitos_page_view: 0,
+      cadsig_tools_page_view: 0,
+      about_page_view: 0,
+      changelog_page_view: 0,
       extract_preview: 0,
       export_json: 0,
       export_excel: 0,
@@ -54,13 +59,33 @@ class AnalyticsService {
       export_leapfrog_geology: 0,
       export_leapfrog_interp: 0,
       export_ags: 0,
+      extraction_presets_view: 0,
+      extraction_presets_load: 0,
+      extraction_presets_save: 0,
+      extraction_presets_download: 0,
+      extraction_presets_import: 0,
+      extraction_map_view: 0,
+      extraction_map_insert_data: 0,
+      extraction_map_export: 0,
+      extraction_exclude_page_open: 0,
+      extraction_exclude_page_use: 0,
       generate_dxf_count: 0,
       generate_dxf_sondagens: 0,
-      dxf_tools: 0,
-      distance_tool: 0,
-      kml_to_xlsx: 0,
-      xlsx_to_dxf_profile: 0,
-      xlsx_to_kml: 0,
+      extracted_data_to_palito: 0,
+      leapfrog_to_palito: 0,
+      dxf_tools_view: 0,
+      distance_tool_view: 0,
+      kml_to_xlsx_view: 0,
+      xlsx_to_dxf_profile_view: 0,
+      xlsx_to_kml_view: 0,
+      dxf_tools_save_dxf: 0,
+      dxf_tools_save_xlsx: 0,
+      dxf_tools_save_kml: 0,
+      distance_tool_save: 0,
+      kml_to_xlsx_save: 0,
+      xlsx_to_dxf_profile_save: 0,
+      xlsx_to_kml_save: 0,
+      cadsig_open_templates: 0,
     };
   }
 
@@ -200,6 +225,39 @@ class AnalyticsService {
     } catch (error) {
       console.error("Erro no flushSync:", error);
     }
+  }
+}
+
+/**
+ * Lê todos os dados de analytics de um ambiente específico
+ * @param environment - Ambiente desejado ('localhost' | 'vercel' | 'gh-pages')
+ * @returns Map com data como chave e contadores como valor
+ */
+export async function getAnalyticsData(
+  environment: "localhost" | "vercel" | "gh-pages",
+): Promise<Map<string, AnalyticsCounters>> {
+  const db = getDatabase();
+  const analyticsRef = ref(db, `analytics/${environment}/daily`);
+
+  try {
+    const snapshot = await get(analyticsRef);
+
+    if (!snapshot.exists()) {
+      return new Map();
+    }
+
+    const data = snapshot.val();
+    const result = new Map<string, AnalyticsCounters>();
+
+    // Converte objeto para Map
+    Object.entries(data).forEach(([date, counters]) => {
+      result.set(date, counters as AnalyticsCounters);
+    });
+
+    return result;
+  } catch (error) {
+    console.error("Erro ao buscar analytics:", error);
+    throw error;
   }
 }
 

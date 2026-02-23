@@ -4,16 +4,6 @@ body,
   height: 100%;
 }
 
-.app-container {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
-
-.main-content {
-  flex: 1;
-}
-
 .selection-mode-overlay {
   position: fixed;
   top: 0;
@@ -143,7 +133,8 @@ body,
 }
 
 .pdf-cursor-crosshair {
-  cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"><path d="M12 2v20M2 12h20" stroke="black" stroke-width="1.5" fill="white"/></svg>')
+  cursor:
+    url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"><path d="M12 2v20M2 12h20" stroke="black" stroke-width="1.5" fill="white"/></svg>')
       12 12,
     crosshair;
 }

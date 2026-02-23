@@ -14,7 +14,7 @@ export const convertCoordinates = (
   selectionArea: SelectionArea,
   renderedScale: number,
   zoomScale: number,
-  originalViewport: any
+  originalViewport: any,
 ) => {
   return {
     x: (selectionArea.x * zoomScale) / renderedScale,
@@ -30,7 +30,7 @@ export const convertCoordinates = (
 // Filtra os objetos de texto, retornando apenas aqueles em uma área dada
 export const filterTextContent = (
   textContent: any,
-  pdfCoords: SelectionArea
+  pdfCoords: SelectionArea,
 ) => {
   return textContent.items.filter((item: TextItem) => {
     const textMinX = item.transform[4];
@@ -67,7 +67,7 @@ export const nsptToString = (items: TextItem[]) => {
   const distances = [];
   for (let i = 0; i + 1 < numberItems.length; i++) {
     distances.push(
-      Math.abs(numberItems[i].transform[5] - numberItems[i + 1].transform[5])
+      Math.abs(numberItems[i].transform[5] - numberItems[i + 1].transform[5]),
     );
   }
   distances.sort((a, b) => a - b);
@@ -75,8 +75,8 @@ export const nsptToString = (items: TextItem[]) => {
     numberItems.length < 4
       ? numberItems[0].height * 1.2 // Usa altura da linha quando são 2 ou 3 itens
       : distances[distances.length - 1] - distances[0] <= distances[0] * 1.2
-      ? 0
-      : distances[0] * 1.1; // Usa menor distância quando há pelo menos 4 itens
+        ? 0
+        : distances[0] * 1.1; // Usa menor distância quando há pelo menos 4 itens
 
   const nsptArr: string[] = [];
   const incompleteNspt: string[] = [];
@@ -119,7 +119,7 @@ export const nsptToString = (items: TextItem[]) => {
 // Função que recebe uma array de TextItem e retorna como array de textos, considerando particularidades como textos multilinha e a formatação de NSPT
 export const textItemToString = (
   items: TextItem[],
-  horizontalLines: HorizontalLine[]
+  horizontalLines: HorizontalLine[],
 ) => {
   const incompleteTexts = Array<string>();
   const textArr = Array<string>();
@@ -137,11 +137,23 @@ export const textItemToString = (
     return yDiff; // ordenar por Y se linhas diferentes
   });
 
+  // Função auxiliar para buscar próximo item com conteúdo
+  const getNextNonEmptyItem = (startIndex: number): TextItem | null => {
+    for (let i = startIndex + 1; i < items.length; i++) {
+      if (items[i].str.trim() !== "") {
+        return items[i];
+      }
+    }
+    return null;
+  };
+
   // Loop para organizar os textos na array
   items.forEach((item, index) => {
     if (item.str.trim() == "") return;
 
     const lineThreshold = item.height * 1.5;
+
+    const nextItem = getNextNonEmptyItem(index);
 
     if (startedNspt) {
       incompleteTexts.push(item.str.trim());
@@ -152,15 +164,15 @@ export const textItemToString = (
       return;
     }
     // Série de verificações realizadas apenas para itens que não sejam o último da área selecionada
-    if (index < items.length - 1) {
+    if (nextItem !== null) {
       // Cria um retângulo imaginário entre o texto atul e o próximo, ocupando os 60% centrais da linha para não colidir com elementos na beirada
       const areaToNextItem: SelectionArea = {
         x: item.transform[4] + item.width / 5,
         y: item.transform[5] - item.height / 2,
         width: item.width * (3 / 5),
         height: Math.min(
-          Math.abs(item.transform[5] - items[index + 1].transform[5]),
-          item.height / 2
+          Math.abs(item.transform[5] - nextItem.transform[5]),
+          item.height / 2,
         ),
       };
       // Cria um retângulo imaginário abaixo do texto, de altura limitada, ocupando os 60% centrais de sua largura
@@ -172,11 +184,15 @@ export const textItemToString = (
         height: item.height, // metade da altura do texto
       };
 
+      const hasLineToNext = areaHasHorizontalLines(
+        areaToNextItem,
+        horizontalLines,
+      );
+
       // Se a próxima linha está a uma distância menor que o limite de 1,5 * altura da linha e não há uma linha horizontal antes da próxima linha, o texto atual será adicionado a uma array de textos imcompletos
       if (
-        Math.abs(item.transform[5] - items[index + 1].transform[5]) <=
-          lineThreshold &&
-        !areaHasHorizontalLines(areaToNextItem, horizontalLines)
+        Math.abs(item.transform[5] - nextItem.transform[5]) <= lineThreshold &&
+        !hasLineToNext
       ) {
         incompleteTexts.push(item.str.trim());
       } else if (
@@ -184,8 +200,7 @@ export const textItemToString = (
         areaHasHorizontalLines(areaBelowItem, horizontalLines, true) &&
         isNumber(item.str.trim()) &&
         isNextValidStringNumber(items, index) &&
-        Math.abs(item.transform[5] - items[index + 1].transform[5]) <=
-          lineThreshold &&
+        Math.abs(item.transform[5] - nextItem.transform[5]) <= lineThreshold &&
         incompleteTexts.length < 1
       ) {
         incompleteTexts.push(item.str.trim());
@@ -223,7 +238,7 @@ export const clamp = (value: number, min: number, max: number) => {
 export const areaHasHorizontalLines = (
   area: SelectionArea,
   horizontalLines: HorizontalLine[],
-  onlyShortLine: boolean = false
+  onlyShortLine: boolean = false,
 ) => {
   const areaXMin = area.x;
   const areaXMax = area.x + area.width;
@@ -236,7 +251,8 @@ export const areaHasHorizontalLines = (
       line.x2 >= areaXMin &&
       line.y >= areaYMin &&
       line.y <= areaYMax &&
-      (Math.abs(line.x2 - line.x1) <= 15 || !onlyShortLine)
+      (Math.abs(line.x2 - line.x1) <= 15 || !onlyShortLine) &&
+      (Math.abs(line.x2 - line.x1) >= area.y / 6 || onlyShortLine),
   );
 };
 
@@ -248,7 +264,7 @@ const isNumber = (str: string): boolean => {
 // Checando se o próximo texto não vazio é número
 const isNextValidStringNumber = (
   items: TextItem[],
-  currentIndex: number
+  currentIndex: number,
 ): boolean => {
   for (let i = currentIndex + 1; i < items.length; i++) {
     const text = items[i].str.trim();
@@ -292,7 +308,7 @@ export const createTypeToAreaNameMap = (areas: Area[]): Map<string, string> => {
 export const getSingleValueFromEntry = (
   entry: PageTextData,
   typeToAreaName: Map<string, string>,
-  dataType: string
+  dataType: string,
 ): string => {
   const areaName = typeToAreaName.get(dataType);
   if (!areaName || !entry[areaName]) return dataType === "z" ? "0" : "";
@@ -302,7 +318,7 @@ export const getSingleValueFromEntry = (
 export const getMultipleValuesFromEntry = (
   entry: PageTextData,
   typeToAreaName: Map<string, string>,
-  dataType: string
+  dataType: string,
 ): string[] => {
   const areaName = typeToAreaName.get(dataType);
   if (!areaName || !entry[areaName]) return [];
@@ -311,7 +327,7 @@ export const getMultipleValuesFromEntry = (
 
 export const getMaxDepth = (
   entry: PageTextData,
-  typeToAreaName: Map<string, string>
+  typeToAreaName: Map<string, string>,
 ): number => {
   // Tentar pegar depth específico primeiro
   const depthAreaName = typeToAreaName.get("depth");
@@ -385,7 +401,7 @@ export const isNumericType = (dataType?: DataType): boolean => {
 
 export const formatDataByType = (
   texts: string[],
-  dataType?: DataType
+  dataType?: DataType,
 ): string[] => {
   // Se não há textos, retorna array vazia
   if (!texts || texts.length === 0) {
@@ -424,12 +440,12 @@ export const formatDataByType = (
 
 export const millisecondsToTimerFormat = (
   totalMS: number,
-  precision: number
+  precision: number,
 ): string => {
   const totalSeconds = totalMS / 1000;
   const totalSecondsFloor = Math.floor(totalMS / 1000);
   const milliseconds = Math.floor(
-    (totalSeconds - totalSecondsFloor) * precision
+    (totalSeconds - totalSecondsFloor) * precision,
   );
   const seconds = totalSecondsFloor % 60;
   const minutes = Math.floor(totalSecondsFloor / 60);

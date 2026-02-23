@@ -1,0 +1,12 @@
+.navlink {
+  text-decoration: none;
+  color: black;
+  cursor: pointer;
+}
+
+.navlinkActive {
+  text-decoration: none;
+  font-weight: 700;
+  color: #000c;
+  cursor: default;
+}

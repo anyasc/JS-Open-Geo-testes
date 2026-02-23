@@ -162,6 +162,8 @@ function DataExtractionPage({ onShowHelp }: DataExtractionPageProps) {
 
       // Analytics
       analytics.track("extract_preview");
+      if (excludedPages.size > 0)
+        analytics.track("extraction_exclude_page_use");
     } catch (error) {
       console.error("Erro na extração: ", error);
     } finally {
@@ -222,6 +224,10 @@ function DataExtractionPage({ onShowHelp }: DataExtractionPageProps) {
       abortController.abort();
     }
   };
+
+  useEffect(() => {
+    analytics.track("extraction_page_view");
+  }, []);
 
   return (
     <>

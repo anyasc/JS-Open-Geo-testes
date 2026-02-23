@@ -1,10 +1,3 @@
-export type PageType =
-  | "extraction"
-  | "dxf"
-  | "transform"
-  | "about"
-  | "changelog";
-
 // Objeto de seleção de área retangular
 export interface SelectionArea {
   x: number;

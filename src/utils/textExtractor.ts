@@ -25,7 +25,7 @@ export const extractText = async (
   pdfDocument: any,
   excludedPages: Set<number>,
   abortSignal?: AbortSignal,
-  onProgress?: (progress: ExtractionProgress) => void
+  onProgress?: (progress: ExtractionProgress) => void,
 ): Promise<PageTextData[]> => {
   const checkAborted = () => {
     if (abortSignal?.aborted) {
@@ -39,12 +39,12 @@ export const extractText = async (
 
   const extractedTexts: PageTextData[] = [];
   const mandatoryAreas = areas.filter(
-    (area) => area.isMandatory && area.coordinates
+    (area) => area.isMandatory && area.coordinates,
   );
   const numPages = pdfDocument.numPages;
   const holeIdArea = areas.find((area) => area.dataType === "hole_id");
   const nonRepeatDataAreas = areas.filter(
-    (area) => !area.repeatInPages && area.dataType !== "hole_id"
+    (area) => !area.repeatInPages && area.dataType !== "hole_id",
   );
 
   const needsOCR = areas.some((area) => area.ocr);
@@ -64,7 +64,7 @@ export const extractText = async (
 
       getPageCanvas = async (
         page: any,
-        pageNum: number
+        pageNum: number,
       ): Promise<HTMLCanvasElement> => {
         if (pageCanvasCache!.has(pageNum)) {
           return pageCanvasCache!.get(pageNum)!;
@@ -92,7 +92,7 @@ export const extractText = async (
           const dataLines = await ocrExtractLines(
             area.coordinates,
             page,
-            worker
+            worker,
           );
           if (dataLines.every((line) => !line.text.trim())) return false;
         } else {
@@ -101,7 +101,7 @@ export const extractText = async (
             area.coordinates!,
             1,
             1,
-            originalViewport
+            originalViewport,
           );
           const filteredItems = filterTextContent(pageTexts, pageCoordinates);
           const textContent = textItemToString(filteredItems, [])
@@ -151,7 +151,7 @@ export const extractText = async (
           const dataLines = await ocrExtractLines(
             holeIdArea.coordinates,
             page,
-            worker
+            worker,
           );
           holeIdText = dataLines
             .map((line) => line.text.trim())
@@ -166,12 +166,12 @@ export const extractText = async (
             holeIdArea.coordinates,
             1,
             1,
-            originalViewport
+            originalViewport,
           );
           const filteredItems = filterTextContent(pageTexts, pageCoordinates);
           filteredItems.sort(
             (a: { transform: number[] }, b: { transform: number[] }) =>
-              b.transform[5] - a.transform[5]
+              b.transform[5] - a.transform[5],
           );
           holeIdText = textItemToString(filteredItems, []).join(" ").trim();
         }
@@ -182,7 +182,7 @@ export const extractText = async (
             (textItem) =>
               textItem[holeIdName] &&
               Array.isArray(textItem[holeIdName]) &&
-              textItem[holeIdName][0] === holeIdText
+              textItem[holeIdName][0] === holeIdText,
           );
 
           if (existingEntry) {
@@ -218,6 +218,7 @@ export const extractText = async (
           const pageTexts = await page.getTextContent();
           const originalViewport = page.getViewport({ scale: 1 });
           const pageHorizontalLines = findHorizontalLines(operatorList);
+
           const viewport2x = page.getViewport({ scale: 2 });
           const pageCanvas = getPageCanvas
             ? await getPageCanvas(page, firstPage)
@@ -233,7 +234,7 @@ export const extractText = async (
                     area.coordinates,
                     page,
                     worker,
-                    pageCanvas
+                    pageCanvas,
                   );
                   textArr = processOCRLines(dataLines, area.dataType);
                 } else {
@@ -241,15 +242,15 @@ export const extractText = async (
                     area.coordinates,
                     1,
                     1,
-                    originalViewport
+                    originalViewport,
                   );
                   const filteredTexts = filterTextContent(
                     pageTexts,
-                    pageCoordinates
+                    pageCoordinates,
                   );
                   filteredTexts.sort(
                     (a: TextItem, b: TextItem) =>
-                      b.transform[5] - a.transform[5]
+                      b.transform[5] - a.transform[5],
                   );
 
                   textArr =
@@ -308,7 +309,7 @@ export const extractText = async (
                     area.coordinates,
                     page,
                     worker,
-                    pageCanvas
+                    pageCanvas,
                   );
                   textArr = processOCRLines(dataLines, area.dataType);
                 } else {
@@ -316,15 +317,15 @@ export const extractText = async (
                     area.coordinates,
                     1,
                     1,
-                    originalViewport
+                    originalViewport,
                   );
                   const filteredTexts = filterTextContent(
                     pageTexts,
-                    pageCoordinates
+                    pageCoordinates,
                   );
                   filteredTexts.sort(
                     (a: TextItem, b: TextItem) =>
-                      b.transform[5] - a.transform[5]
+                      b.transform[5] - a.transform[5],
                   );
 
                   textArr =

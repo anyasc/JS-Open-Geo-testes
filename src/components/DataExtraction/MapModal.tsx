@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Download } from "lucide-react";
 import type { Area, PageTextData } from "@types";
 import { Button, Form, Modal, OverlayTrigger, Tooltip } from "react-bootstrap";
@@ -15,6 +15,7 @@ import {
 import JSZip from "jszip";
 import LeafletMap from "./LeafletMap";
 import { toast } from "react-toastify";
+import { analytics } from "@/utils/analyticsUtils";
 
 interface MapModalProps {
   extractedTexts: PageTextData[];
@@ -23,10 +24,10 @@ interface MapModalProps {
 
 const MapModal: React.FC<MapModalProps> = ({ extractedTexts, areas }) => {
   const [selectedDatum, setSelectedDatum] = useState<DatumType | undefined>(
-    undefined
+    undefined,
   );
   const [selectedZone, setSelectedZone] = useState<ZoneType | undefined>(
-    undefined
+    undefined,
   );
   const [show, setShow] = useState(false);
   const [points, setPoints] = useState<PointCoords[]>([]);
@@ -36,13 +37,13 @@ const MapModal: React.FC<MapModalProps> = ({ extractedTexts, areas }) => {
 
   // Verifica se tem áreas de coordenadas configuradas
   const hasXCoord = areas.some(
-    (area) => area.dataType === "x" && area.coordinates
+    (area) => area.dataType === "x" && area.coordinates,
   );
   const hasYCoord = areas.some(
-    (area) => area.dataType === "y" && area.coordinates
+    (area) => area.dataType === "y" && area.coordinates,
   );
   const hasHoleId = areas.some(
-    (area) => area.dataType === "hole_id" && area.coordinates
+    (area) => area.dataType === "hole_id" && area.coordinates,
   );
   const hasRequiredData = hasXCoord && hasYCoord && hasHoleId;
 
@@ -63,6 +64,8 @@ const MapModal: React.FC<MapModalProps> = ({ extractedTexts, areas }) => {
     link.download = "sondagens.kmz";
     link.click();
     URL.revokeObjectURL(url);
+
+    analytics.track("extraction_map_export");
   };
 
   const handlePlotPoints = async () => {
@@ -101,7 +104,7 @@ const MapModal: React.FC<MapModalProps> = ({ extractedTexts, areas }) => {
       try {
         convertedCoords = convertGeographicCoordinates(
           [x, y],
-          coordinateSystem
+          coordinateSystem,
         );
       } catch (error) {
         invalidPoints.push(idValue);
@@ -135,10 +138,16 @@ const MapModal: React.FC<MapModalProps> = ({ extractedTexts, areas }) => {
           ? "Coordenadas inválidas para todos os pontos"
           : `Coordenadas inválidas para ${invalidPoints.length} ponto${
               invalidPoints.length > 1 ? "s" : ""
-            }: ${invalidPoints.join(", ")}`
+            }: ${invalidPoints.join(", ")}`,
       );
     }
+
+    analytics.track("extraction_map_insert_data");
   };
+
+  useEffect(() => {
+    if (show) analytics.track("extraction_map_view");
+  }, [show]);
 
   return (
     <>

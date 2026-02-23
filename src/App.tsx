@@ -4,7 +4,6 @@ import AppHeader from "./components/AppHeader";
 import DxfPage from "./pages/DxfPage";
 import AppNavigation from "./components/AppNavigation";
 import { Col, Container, Row } from "react-bootstrap";
-import type { PageType } from "./types";
 import HelpModal from "./components/HelpModal";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -13,10 +12,13 @@ import ChangelogPage from "./pages/ChangelogPage";
 import AppFooter from "./components/AppFooter";
 import { ToolsPage } from "./pages/ToolsPage";
 import { analytics } from "./utils/analyticsUtils";
+import { Route, Routes, useLocation } from "react-router-dom";
+import HomePage from "./pages/HomePage";
+import { ToolsGrid } from "./components/Tools/ToolsGrid";
+import ToolPageLayout from "./components/Tools/ToolPageLayout";
+import styles from "./App.module.css";
 
 function App() {
-  const [currentPage, setCurrentPage] = useState<PageType>("extraction");
-
   // Lidando com o Modal de ajuda
   const [openHelpOnLoad, setOpenHelpOnLoad] = useState(() => {
     const saved = localStorage.getItem("showHelpOnLoad");
@@ -29,6 +31,11 @@ function App() {
   const toggleShowHelpOnLoad = (show: boolean) => {
     setOpenHelpOnLoad(show);
     localStorage.setItem("showHelpOnLoad", show.toString());
+  };
+
+  const currentPath = () => {
+    const location = useLocation();
+    return location.pathname;
   };
 
   useEffect(() => {
@@ -61,8 +68,8 @@ function App() {
   }, []);
 
   return (
-    <div className="app-container">
-      <div className="main-content">
+    <div className={styles.appContainer}>
+      <div className={styles.mainContent}>
         <Container fluid className="text-center p-0">
           <ToastContainer
             position="top-right"
@@ -80,28 +87,32 @@ function App() {
               <AppHeader />
             </Col>
           </Row>
-          <Row className="justify-content-center">
-            <Col className="px-0">
-              <AppNavigation
-                currentPage={currentPage}
-                onChangePage={setCurrentPage}
-              />
-            </Col>
-          </Row>
-          {currentPage === "extraction" ? (
-            <DataExtractionPage onShowHelp={handleShowHelp} />
-          ) : currentPage === "dxf" ? (
-            <DxfPage />
-          ) : currentPage === "about" ? (
-            <AboutPage />
-          ) : currentPage === "changelog" ? (
-            <ChangelogPage />
-          ) : currentPage === "transform" ? (
-            <ToolsPage />
-          ) : (
-            <div>Erro: página não encontrada</div>
+          {currentPath() !== "/" && (
+            <Row className="justify-content-center">
+              <Col className="px-0">
+                <AppNavigation />
+              </Col>
+            </Row>
           )}
         </Container>
+
+        <div className={styles.routesContainer}>
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route
+              path="/dados_de_sondagem"
+              element={<DataExtractionPage onShowHelp={handleShowHelp} />}
+            />
+            <Route path="/palitos" element={<DxfPage />} />
+            <Route path="/ferramentas" element={<ToolsPage />}>
+              <Route index element={<ToolsGrid />} />
+              <Route path=":toolPath" element={<ToolPageLayout />} />
+            </Route>
+            <Route path="/sobre" element={<AboutPage />} />
+            <Route path="/changelog" element={<ChangelogPage />} />
+            <Route path="*" element={<div>Erro: página não encontrada</div>} />
+          </Routes>
+        </div>
       </div>
       <AppFooter />
     </div>
